@@ -1,6 +1,11 @@
-#import numpy as np
 import random
 import math
+import plotFunctions
+from neighborFunctions import (
+	createNeighboor1,
+	createNeighboor2
+)
+	
 
 #graph = np.zeros((16,16),dtype=int);
 #print(graph)
@@ -13,32 +18,27 @@ def createsolution(nNodes):
 		count += 1
 	return solution
 
-def createNeighboor1(solution):
-	lenSolution = len(solution)
-	x1 = random.randint(0,lenSolution-1)
-	x2 = random.randint(0,lenSolution-1)
-	aux = solution[x1]
-	solution[x1] = solution[x2]
-	solution[x2] = aux
-	return solution
 
-def createNeighboor2(problem,solution):
-	value = 0
+def rankSolution(problem,solution):
+	rank = 0
 	node1 = 0
-	node2 = 0
-	lenSolution = len(solution)
-	while value != 1:
-		node1 = random.randint(0,lenSolution-1)
-		node2 = random.randint(0,lenSolution-1)
-		value = problem[node1][node2]
-	print("node1 ", node1 , " node2 ", node2)
-	color1 = solution[node1]
-	color2 = solution[node2]
-	solution[node1] = color2
-	solution[node2] = color1
-	return solution
-
-
+	length = len(problem)
+	while node1 < length:
+		# Para recorrer solo parte superior
+		node2 = node1+1
+		while node2 < length:
+			value = problem[node1][node2]
+			# Si hay conexion
+			if(value == 1):
+				# Se obtienen los colores de cada nodo
+				colorNode1 = solution[node1]
+				colorNode2 = solution[node2]
+				if colorNode1 == colorNode2:
+					rank -= 10
+				
+			node2 += 1
+		node1 += 1
+	return rank
 
 graph = [
             #1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
@@ -59,14 +59,81 @@ graph = [
 			[0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 1 , 1 , 0 , 1],
 			[0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 0]
 		]
-
+"""
+graph = [
+	[0,1,0,0],
+	[1,0,1,1],
+	[0,1,0,1],
+	[0,1,1,0],
+]
+"""
+print("Matriz de adjacencia:")
 for line in graph:
 	print(line)
+
+# Labels
+labels = {}
+for i in range(0, len(graph)):
+	labels[i] = i
+#####################
+# Solucion Original #
+#####################
+print("\nSolucion:")
 solution = createsolution(len(graph[0]))
 print(solution)
+plotFunctions.plotAdjacencyMatrix(graph,solution,'Grafo Original', labels)
 
+rank = rankSolution(graph, solution)
+print("Ranking original: ",rank)
+
+##########################
+# Vecindad primera forma #
+##########################
+
+print("\nPrimer vecino, forma 1:")
 solutionNeighboor1 = createNeighboor1(solution)
 print(solutionNeighboor1)
+plotFunctions.plotAdjacencyMatrix(graph,solution,'Vecino forma 1', labels)
 
+
+firstFormRanking = []
+iteration = []
+# Crear 100 vecinos
+for i in range(0,100):
+	solutionNeighboor1 = createNeighboor1(solutionNeighboor1)
+	rank = rankSolution(graph, solution)
+	firstFormRanking.append(rank)
+	iteration.append(i)
+plotFunctions.plotRanks(firstFormRanking,iteration,'Vecindad primera forma, desordenado', False)
+
+# Ranking ordenado
+rankSorted, iterationSorted = zip(*sorted(zip(firstFormRanking, iteration)))
+
+plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad primera forma, ordenado', True)
+
+##########################
+# Vecindad segunda forma #
+##########################
+
+print("\nPrimer vecino, forma 2:")
 solutionNeighboor2 = createNeighboor2(graph,solution)
 print(solutionNeighboor2)
+
+plotFunctions.plotAdjacencyMatrix(graph,solution,'Vecino forma 2', labels)
+
+secondFormRanking = []
+iteration = []
+# Crear 100 vecinos
+for i in range(0,100):
+	solutionNeighboor2 = createNeighboor2(graph,solutionNeighboor2)
+	rank = rankSolution(graph, solution)
+	secondFormRanking.append(rank)
+	iteration.append(i)
+plotFunctions.plotRanks(secondFormRanking,iteration,'Vecindad segunda forma, desordenado', False)
+
+# Ranking ordenado
+rankSorted, iterationSorted = zip(*sorted(zip(secondFormRanking, iteration)))
+
+plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad segunda forma, ordenado', True)
+
+
