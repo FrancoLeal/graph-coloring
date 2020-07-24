@@ -1,6 +1,7 @@
 import random
 import math
 import plotFunctions
+import numpy as np
 from neighborFunctions import (
 	createNeighboor1,
 	createNeighboor2
@@ -11,18 +12,18 @@ from neighborFunctions import (
 #print(graph)
 def createsolution(nNodes):
 	count = 0
-	nColors = math.sqrt(nNodes)
 	solution = []
 	while count < nNodes:
-		solution.append(random.randint(0,nColors))
+		solution.append(random.randint(0,nNodes))
 		count += 1
+	solution = np.array(solution)
 	return solution
 
 
 def rankSolution(problem,solution):
-	rank = 0
 	node1 = 0
 	length = len(problem)
+	rank = length - len(np.unique(solution)) + 1
 	while node1 < length:
 		# Para recorrer solo parte superior
 		node2 = node1+1
@@ -34,7 +35,7 @@ def rankSolution(problem,solution):
 				colorNode1 = solution[node1]
 				colorNode2 = solution[node2]
 				if colorNode1 == colorNode2:
-					rank -= 10
+					rank -= 1
 				
 			node2 += 1
 		node1 += 1
@@ -67,6 +68,7 @@ graph = [
 	[0,1,1,0],
 ]
 """
+
 print("Matriz de adjacencia:")
 for line in graph:
 	print(line)
@@ -101,7 +103,7 @@ iteration = []
 # Crear 100 vecinos
 for i in range(0,100):
 	solutionNeighboor1 = createNeighboor1(solutionNeighboor1)
-	rank = rankSolution(graph, solution)
+	rank = rankSolution(graph, solutionNeighboor1)
 	firstFormRanking.append(rank)
 	iteration.append(i)
 plotFunctions.plotRanks(firstFormRanking,iteration,'Vecindad primera forma, desordenado', False)
@@ -126,7 +128,7 @@ iteration = []
 # Crear 100 vecinos
 for i in range(0,100):
 	solutionNeighboor2 = createNeighboor2(graph,solutionNeighboor2)
-	rank = rankSolution(graph, solution)
+	rank = rankSolution(graph, solutionNeighboor2)
 	secondFormRanking.append(rank)
 	iteration.append(i)
 plotFunctions.plotRanks(secondFormRanking,iteration,'Vecindad segunda forma, desordenado', False)
@@ -135,5 +137,4 @@ plotFunctions.plotRanks(secondFormRanking,iteration,'Vecindad segunda forma, des
 rankSorted, iterationSorted = zip(*sorted(zip(secondFormRanking, iteration)))
 
 plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad segunda forma, ordenado', True)
-
 
