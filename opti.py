@@ -4,42 +4,17 @@ import plotFunctions
 import numpy as np
 from neighborFunctions import (
 	createNeighboor1,
-	createNeighboor2
+	createNeighboor2,
+	createNeighboor3,
+	createPopulation,
+	createsolution,
+	rankSolution
 )
-	
+
 
 #graph = np.zeros((16,16),dtype=int);
 #print(graph)
-def createsolution(nNodes):
-	count = 0
-	solution = []
-	while count < nNodes:
-		solution.append(random.randint(0,nNodes))
-		count += 1
-	solution = np.array(solution)
-	return solution
 
-
-def rankSolution(problem,solution):
-	node1 = 0
-	length = len(problem)
-	rank = length - len(np.unique(solution)) + 1
-	while node1 < length:
-		# Para recorrer solo parte superior
-		node2 = node1+1
-		while node2 < length:
-			value = problem[node1][node2]
-			# Si hay conexion
-			if(value == 1):
-				# Se obtienen los colores de cada nodo
-				colorNode1 = solution[node1]
-				colorNode2 = solution[node2]
-				if colorNode1 == colorNode2:
-					rank -= 1
-				
-			node2 += 1
-		node1 += 1
-	return rank
 
 graph = [
             #1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
@@ -68,7 +43,7 @@ graph = [
 	[0,1,1,0],
 ]
 """
-
+"""
 print("Matriz de adjacencia:")
 for line in graph:
 	print(line)
@@ -136,5 +111,83 @@ plotFunctions.plotRanks(secondFormRanking,iteration,'Vecindad segunda forma, des
 # Ranking ordenado
 rankSorted, iterationSorted = zip(*sorted(zip(secondFormRanking, iteration)))
 
-plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad segunda forma, ordenado', True)
+plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad segunda forma, ordenado', True)"""
 
+#GA
+
+def selectParents(population,nTopParents,nRandomParents):
+	newPopulation = []
+	sortedPopulation = population[population[:,0].argsort()[::-1]]
+	topPopulation = sortedPopulation[0:nTopParents]
+	for i in range(0,nRandomParents):
+		pos = random.randint(0,len(sortedPopulation)-1)
+		newPopulation.append(sortedPopulation[pos])
+	newPopulation = np.array(newPopulation)
+	newPopulation = np.concatenate((newPopulation,topPopulation))
+	return newPopulation
+
+def reproduce(problem,population,nChilds):
+	i = 0
+	newPopulation = []
+	for i in range(0,nChilds):
+		lenPop = len(population)
+		parent1 = population[random.randint(0,lenPop-1)]
+		parent2 = population[random.randint(0,lenPop-1)]
+		position = random.randint(2,len(parent1[1])-2)
+		infoParent1 = parent1[1][0:position]
+		infoParent2 = parent2[1][position:len(parent2[1])]
+		infoParent1 = np.array(infoParent1)
+		infoParent2 = np.array(infoParent2)
+		child1 = np.concatenate((infoParent1,infoParent2))
+		infoParent2 = parent2[1][0:position]
+		infoParent1 = parent1[1][position:len(parent2[1])]
+		infoParent2 = np.array(infoParent2)
+		infoParent1 = np.array(infoParent1)
+		child2 = np.concatenate((infoParent2,infoParent1))
+		mutate1 = random.random()
+		if mutate1<0.01:
+			child1 = createNeighboor3(child1)
+		mutate2 = random.random()
+		if mutate2<0.01:
+			child2 = createNeighboor3(child2)
+		newPopulation.append(np.array([rankSolution(problem,child1),child1]))
+		newPopulation.append(np.array([rankSolution(problem,child2),child2]))
+		
+	return np.array(newPopulation)
+
+def replace(oldPop,child):
+	newPop = []
+	selectedOldPop = random.sample(list(oldPop),40)
+	selectedChild = random.sample(list(child),60)
+	selectedOldPop = np.array(selectedOldPop)
+	selectedChild = np.array(selectedChild)
+
+	newPop = np.concatenate((selectedChild,selectedOldPop))
+	return newPop
+
+
+file = open("myciel3.col","r")
+nNodes= 0
+graph = []
+for line in file:
+	if line[0]=="p":
+		line = line.split()
+		nNodes = int(line[2])
+		graph = np.zeros((nNodes,nNodes),dtype=np.int16)
+	if line[0]=="e":
+		line = line.split()
+		graph[int(line[1])-1][int(line[2])-1] = 1
+		graph[int(line[2])-1][int(line[1])-1] = 1
+
+solution = createsolution(len(graph[0]))
+population = createPopulation(graph,solution,100)
+
+
+nIterations = 100
+i = 0
+while i < nIterations:
+	parents = selectParents(population,10,40)
+	childPopulation = reproduce(graph,parents,50)
+	population = replace(parents,childPopulation)
+	i=i+1
+print(population)
