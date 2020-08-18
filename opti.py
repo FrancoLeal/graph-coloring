@@ -194,14 +194,14 @@ def reproduce(problem,population,nChilds):
 		
 	return np.array(newPopulation)
 #Funcion que elije 20 padres con menos colores, 20 padres aleatorios, 25 hijos con menos colores y 24 hijos aleatorios
-def replace(oldPop,child):
+def replace(oldPop,child,nTopOld,nTopChild,nRandomOld,nRandomChild):
 	newPop = []
 	sortedOldByColors = oldPop[oldPop[:,1].argsort()]
-	topOldPop = sortedOldByColors[0:20]
-	selectedOldPop = random.sample(list(oldPop),20)
+	topOldPop = sortedOldByColors[0:nTopOld]
+	selectedOldPop = random.sample(list(oldPop),nRandomOld)
 	sortedChildByColors = child[child[:,1].argsort()]
-	topChildPop = sortedChildByColors[0:25]
-	selectedChild = random.sample(list(child),35)
+	topChildPop = sortedChildByColors[0:nTopChild]
+	selectedChild = random.sample(list(child),nRandomChild)
 	topOldPop = np.array(topOldPop)
 	topChildPop = np.array(topChildPop)
 	selectedOldPop = np.array(selectedOldPop)
@@ -210,8 +210,18 @@ def replace(oldPop,child):
 	newPop = np.concatenate((topOldPop,topChildPop,selectedChild,selectedOldPop))
 	return newPop
 
+def findBest(actualBest,population):
+	if actualBest==[]:
+		actualBest = population[0]
+	for element in population:
+		if element[0][1]:
+			if not actualBest[0][1]:
+				actualBest=element
+			elif actualBest[0][0]<element[0][0]:
+				actualBest=element
+	return actualBest
 """
-file = open("myciel3.col","r")
+file = open("queen5_5.col","r")
 nNodes= 0
 graph = []
 for line in file:
@@ -234,8 +244,8 @@ print("****************Creando Poblacion**************")
 print("**************************************")
 
 nPop = 200
-nRandom = 60
-nTop = 40
+nRandom = 80
+nTop = 20
 nParentsToRep = 100
 
 population = createPopulation(graph,solution,nPop)
@@ -246,6 +256,7 @@ i = 0
 print("**************************************")
 print("****************Iterando**************")
 print("**************************************")
+best = []
 while i < nIterations:
 	print(i)
 	#print("**************************************")
@@ -259,7 +270,10 @@ while i < nIterations:
 	#print("**************************************")
 	#print("****************REplace**************")
 	#print("**************************************")
-	population = replace(parents,childPopulation)
+	population = replace(parents,childPopulation,40,40,60,60)
+	best = findBest(best,population)
 	i=i+1
-	print(population[population[:,1].argsort()])
+	print(population)
+	print("Best sol:")
+	print(best)
 	
