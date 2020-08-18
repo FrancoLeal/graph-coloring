@@ -145,6 +145,7 @@ plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad tercera forma, orde
 def selectParents(population,nTopParents,nRandomParents,nLessColors):
 	newPopulation = []
 	sortedPopulation = population[population[:,0].argsort()[::-1]]
+	#print(sortedPopulation)
 	topPopulation = sortedPopulation[0:nTopParents]
 	for i in range(0,nRandomParents):
 		pos = random.randint(0,len(sortedPopulation)-1)
@@ -157,6 +158,12 @@ def selectParents(population,nTopParents,nRandomParents,nLessColors):
 	newPopulation = np.array(newPopulation)
 	newPopulation = np.concatenate((newPopulation,topPopulation,lessColorPopulation))
 	return newPopulation
+def mutate(solution):
+	for i in range(0,len(solution)):
+		prob = random.random()
+		if(prob<0.1):
+			solution[i]=random.randint(0,len(solution)-1)
+	return solution 
 #Funcion que dados dos padres genera dos hijos, con 1% de prob de mutacion
 def reproduce(problem,population,nChilds):
 	i = 0
@@ -178,10 +185,10 @@ def reproduce(problem,population,nChilds):
 		child2 = np.concatenate((infoParent2,infoParent1))
 		mutate1 = random.random()
 		if mutate1<0.01:
-			child1 = createNeighboor3(child1)
+			child1 = mutate(child1)
 		mutate2 = random.random()
 		if mutate2<0.01:
-			child2 = createNeighboor3(child2)
+			child2 = mutate(child2)
 		newPopulation.append(np.array([rankSolution(problem,child1),len(np.unique(child1)),child1]))
 		newPopulation.append(np.array([rankSolution(problem,child2),len(np.unique(child2)),child2]))
 		
@@ -204,7 +211,7 @@ def replace(oldPop,child):
 	return newPop
 
 
-file = open("queen5_5.col","r")
+file = open("myciel3.col","r")
 nNodes= 0
 graph = []
 for line in file:
@@ -223,7 +230,13 @@ solution = createsolution(len(graph[0]))
 print("**************************************")
 print("****************Creando Poblacion**************")
 print("**************************************")
-population = createPopulation(graph,solution,100)
+
+nPop = 200
+nRandom = 60
+nTop = 40
+nParentsToRep = 100
+
+population = createPopulation(graph,solution,nPop)
 
 
 nIterations = 1000
@@ -236,14 +249,15 @@ while i < nIterations:
 	#print("**************************************")
 	#print("****************Parents**************")
 	#print("**************************************")
-	parents = selectParents(population,10,30,10)
+	parents = selectParents(population,nTop,nRandom,0)
 	#print("**************************************")
 	#print("****************Reproduce**************")
 	#print("**************************************")
-	childPopulation = reproduce(graph,parents,50)
+	childPopulation = reproduce(graph,parents,nParentsToRep)
 	#print("**************************************")
 	#print("****************REplace**************")
 	#print("**************************************")
 	population = replace(parents,childPopulation)
 	i=i+1
-	#print(population[population[:,1].argsort()])
+	print(population[population[:,1].argsort()])
+	

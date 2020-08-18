@@ -24,6 +24,7 @@ def rankSolution(problem,solution):
 	flag = True
 	node1 = 0
 	length = len(problem)
+	print(length)
 	rank = length - len(np.unique(solution)) + 1
 	while node1 < length:
 		# Para recorrer solo parte superior
