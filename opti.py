@@ -114,7 +114,7 @@ rankSorted, iterationSorted = zip(*sorted(zip(secondFormRanking, iteration)))
 plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad segunda forma, ordenado', True)"""
 
 #GA
-
+# Funcion que devuelve los n mejores padres, m padres aleatorios y p padres con menos colores
 def selectParents(population,nTopParents,nRandomParents,nLessColors):
 	newPopulation = []
 	sortedPopulation = population[population[:,0].argsort()[::-1]]
@@ -130,7 +130,7 @@ def selectParents(population,nTopParents,nRandomParents,nLessColors):
 	newPopulation = np.array(newPopulation)
 	newPopulation = np.concatenate((newPopulation,topPopulation,lessColorPopulation))
 	return newPopulation
-
+#Funcion que dados dos padres genera dos hijos, con 1% de prob de mutacion
 def reproduce(problem,population,nChilds):
 	i = 0
 	newPopulation = []
@@ -159,7 +159,7 @@ def reproduce(problem,population,nChilds):
 		newPopulation.append(np.array([rankSolution(problem,child2),len(np.unique(child2)),child2]))
 		
 	return np.array(newPopulation)
-
+#Funcion que elije 20 padres con menos colores, 20 padres aleatorios, 25 hijos con menos colores y 24 hijos aleatorios
 def replace(oldPop,child):
 	newPop = []
 	sortedOldByColors = oldPop[oldPop[:,1].argsort()]
