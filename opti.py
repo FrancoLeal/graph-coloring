@@ -42,6 +42,7 @@ graph = [
 	[0,1,1,0],
 ]
 """
+"""
 print("Matriz de adjacencia:")
 for line in graph:
 	print(line)
@@ -140,33 +141,38 @@ plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad tercera forma, orde
 
 """
 #GA
-
-def selectParents(population,nTopParents,nRandomParents):
+# Funcion que devuelve los n mejores padres, m padres aleatorios y p padres con menos colores
+def selectParents(population,nTopParents,nRandomParents,nLessColors):
 	newPopulation = []
 	sortedPopulation = population[population[:,0].argsort()[::-1]]
 	topPopulation = sortedPopulation[0:nTopParents]
 	for i in range(0,nRandomParents):
 		pos = random.randint(0,len(sortedPopulation)-1)
 		newPopulation.append(sortedPopulation[pos])
+	sortedPopulationByColors = population[population[:,1].argsort()]
+	#print("++++++++++++++++++++++++++++++++++++")
+	#print(sortedPopulation)
+	#print("*****************************")
+	lessColorPopulation = sortedPopulation[0:nLessColors]
 	newPopulation = np.array(newPopulation)
-	newPopulation = np.concatenate((newPopulation,topPopulation))
+	newPopulation = np.concatenate((newPopulation,topPopulation,lessColorPopulation))
 	return newPopulation
-
-def reproduce(problem,population, ):
+#Funcion que dados dos padres genera dos hijos, con 1% de prob de mutacion
+def reproduce(problem,population,nChilds):
 	i = 0
 	newPopulation = []
 	for i in range(0,nChilds):
 		lenPop = len(population)
 		parent1 = population[random.randint(0,lenPop-1)]
 		parent2 = population[random.randint(0,lenPop-1)]
-		position = random.randint(2,len(parent1[1])-2)
-		infoParent1 = parent1[1][0:position]
-		infoParent2 = parent2[1][position:len(parent2[1])]
+		position = random.randint(2,len(parent1[2])-2)
+		infoParent1 = parent1[2][0:position]
+		infoParent2 = parent2[2][position:len(parent2[2])]
 		infoParent1 = np.array(infoParent1)
 		infoParent2 = np.array(infoParent2)
 		child1 = np.concatenate((infoParent1,infoParent2))
-		infoParent2 = parent2[1][0:position]
-		infoParent1 = parent1[1][position:len(parent2[1])]
+		infoParent2 = parent2[2][0:position]
+		infoParent1 = parent1[2][position:len(parent2[2])]
 		infoParent2 = np.array(infoParent2)
 		infoParent1 = np.array(infoParent1)
 		child2 = np.concatenate((infoParent2,infoParent1))
@@ -176,23 +182,29 @@ def reproduce(problem,population, ):
 		mutate2 = random.random()
 		if mutate2<0.01:
 			child2 = createNeighboor3(child2)
-		newPopulation.append(np.array([rankSolution(problem,child1),child1]))
-		newPopulation.append(np.array([rankSolution(problem,child2),child2]))
+		newPopulation.append(np.array([rankSolution(problem,child1),len(np.unique(child1)),child1]))
+		newPopulation.append(np.array([rankSolution(problem,child2),len(np.unique(child2)),child2]))
 		
 	return np.array(newPopulation)
-
+#Funcion que elije 20 padres con menos colores, 20 padres aleatorios, 25 hijos con menos colores y 24 hijos aleatorios
 def replace(oldPop,child):
 	newPop = []
-	selectedOldPop = random.sample(list(oldPop),40)
-	selectedChild = random.sample(list(child),60)
+	sortedOldByColors = oldPop[oldPop[:,1].argsort()]
+	topOldPop = sortedOldByColors[0:20]
+	selectedOldPop = random.sample(list(oldPop),20)
+	sortedChildByColors = child[child[:,1].argsort()]
+	topChildPop = sortedChildByColors[0:25]
+	selectedChild = random.sample(list(child),35)
+	topOldPop = np.array(topOldPop)
+	topChildPop = np.array(topChildPop)
 	selectedOldPop = np.array(selectedOldPop)
 	selectedChild = np.array(selectedChild)
 
-	newPop = np.concatenate((selectedChild,selectedOldPop))
+	newPop = np.concatenate((topOldPop,topChildPop,selectedChild,selectedOldPop))
 	return newPop
 
 
-file = open("myciel3.col","r")
+file = open("queen5_5.col","r")
 nNodes= 0
 graph = []
 for line in file:
@@ -204,16 +216,34 @@ for line in file:
 		line = line.split()
 		graph[int(line[1])-1][int(line[2])-1] = 1
 		graph[int(line[2])-1][int(line[1])-1] = 1
+print("**************************************")
+print("****************Creando solucion inicial**************")
+print("**************************************")
+solution = createsolution(len(graph[0]))
+print("**************************************")
+print("****************Creando Poblacion**************")
+print("**************************************")
+population = createPopulation(graph,solution,100)
 
-#population = createPopulation(graph,solution,100)
 
-
-nIterations = 100
+nIterations = 1000
 i = 0
+print("**************************************")
+print("****************Iterando**************")
+print("**************************************")
 while i < nIterations:
-	parents = selectParents(population,10,40)
+	print(i)
+	#print("**************************************")
+	#print("****************Parents**************")
+	#print("**************************************")
+	parents = selectParents(population,10,30,10)
+	#print("**************************************")
+	#print("****************Reproduce**************")
+	#print("**************************************")
 	childPopulation = reproduce(graph,parents,50)
+	#print("**************************************")
+	#print("****************REplace**************")
+	#print("**************************************")
 	population = replace(parents,childPopulation)
 	i=i+1
-print(population)
-"""
+	#print(population[population[:,1].argsort()])

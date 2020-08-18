@@ -191,8 +191,8 @@ def createNeighboor3(solution):
 def createPopulation(problem,solution,nNeighboors):
 	population = []
 	for i in range(0,nNeighboors):
-		solution = createNeighboor3(solution)
+		solution = np.random.randint(len(solution),size=len(solution))#createNeighboor3(solution)
 		rank = rankSolution(problem,solution)
-		solutionWithFitness = np.array([rank,solution])
+		solutionWithFitness = np.array([rank,len(np.unique(solution)),solution])
 		population.append(solutionWithFitness)
 	return np.array(population)
