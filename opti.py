@@ -161,7 +161,7 @@ def selectParents(population,nTopParents,nRandomParents,nLessColors):
 def mutate(solution):
 	for i in range(0,len(solution)):
 		prob = random.random()
-		if(prob<0.1):
+		if(prob<0.5):
 			solution[i]=random.randint(0,len(solution)-1)
 	return solution
 
@@ -171,7 +171,7 @@ def mix(parent1,parent2):
 	child1 = []
 	child2 = []
 	for i in range(0,len(parent1[2])):
-		if(i<position1 or i>position2):
+		if(i<position1 or i>position1):
 			child1.append(parent1[2][i])
 			child2.append(parent2[2][i])
 		else:
@@ -250,10 +250,10 @@ print("**************************************")
 print("****************Creando Poblacion**************")
 print("**************************************")
 
-nPop = 200
-nRandom = 80
-nTop = 20
-nParentsToRep = 100
+nPop = 300
+nRandom = 120
+nTop = 30
+nParentsToRep = 150
 
 population = createPopulation(graph,solution,nPop)
 
@@ -277,7 +277,7 @@ while i < nIterations:
 	#print("**************************************")
 	#print("****************REplace**************")
 	#print("**************************************")
-	population = replace(parents,childPopulation,20,20,80,80)
+	population = replace(parents,childPopulation,30,30,120,120)
 	best = findBest(best,population)
 	i=i+1
 	print(population)
