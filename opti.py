@@ -10,11 +10,10 @@ from neighborFunctions import (
 	createsolution,
 	rankSolution
 )
-
+from utils import mySort
 
 #graph = np.zeros((16,16),dtype=int);
 #print(graph)
-
 
 graph = [
             #1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
@@ -43,7 +42,6 @@ graph = [
 	[0,1,1,0],
 ]
 """
-"""
 print("Matriz de adjacencia:")
 for line in graph:
 	print(line)
@@ -55,13 +53,14 @@ for i in range(0, len(graph)):
 #####################
 # Solucion Original #
 #####################
+
 print("\nSolucion:")
 solution = createsolution(len(graph[0]))
 print(solution)
 plotFunctions.plotAdjacencyMatrix(graph,solution,'Grafo Original', labels)
 
-rank = rankSolution(graph, solution)
-print("Ranking original: ",rank)
+originalRank, flag = rankSolution(graph, solution)
+print("Ranking original: ",originalRank)
 
 ##########################
 # Vecindad primera forma #
@@ -73,21 +72,20 @@ print(solutionNeighboor1)
 plotFunctions.plotAdjacencyMatrix(graph,solution,'Vecino forma 1', labels)
 
 
-firstFormRanking = []
+firstFormRanking = [[],[]]
 iteration = []
 # Crear 100 vecinos
 for i in range(0,100):
 	solutionNeighboor1 = createNeighboor1(solutionNeighboor1)
-	rank = rankSolution(graph, solutionNeighboor1)
-	firstFormRanking.append(rank)
+	rank, flag = rankSolution(graph, solutionNeighboor1)
+	firstFormRanking[0].append(rank)
+	firstFormRanking[1].append(flag)
 	iteration.append(i)
-plotFunctions.plotRanks(firstFormRanking,iteration,'Vecindad primera forma, desordenado', False)
-
+plotFunctions.plotRanks(firstFormRanking,iteration,'Vecindad primera forma, desordenado', False, originalRank)
 # Ranking ordenado
-rankSorted, iterationSorted = zip(*sorted(zip(firstFormRanking, iteration)))
+rankSorted, iterationSorted = mySort(firstFormRanking, iteration)
 
-plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad primera forma, ordenado', True)
-
+plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad primera forma, ordenado', True, originalRank)
 ##########################
 # Vecindad segunda forma #
 ##########################
@@ -98,21 +96,49 @@ print(solutionNeighboor2)
 
 plotFunctions.plotAdjacencyMatrix(graph,solution,'Vecino forma 2', labels)
 
-secondFormRanking = []
+secondFormRanking = [[],[]]
 iteration = []
 # Crear 100 vecinos
 for i in range(0,100):
 	solutionNeighboor2 = createNeighboor2(graph,solutionNeighboor2)
-	rank = rankSolution(graph, solutionNeighboor2)
-	secondFormRanking.append(rank)
+	rank, flag = rankSolution(graph, solutionNeighboor2)
+	secondFormRanking[0].append(rank)
+	secondFormRanking[1].append(flag)
 	iteration.append(i)
-plotFunctions.plotRanks(secondFormRanking,iteration,'Vecindad segunda forma, desordenado', False)
+plotFunctions.plotRanks(secondFormRanking,iteration,'Vecindad segunda forma, desordenado', False, originalRank)
 
 # Ranking ordenado
-rankSorted, iterationSorted = zip(*sorted(zip(secondFormRanking, iteration)))
+rankSorted, iterationSorted = mySort(secondFormRanking, iteration)
 
-plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad segunda forma, ordenado', True)"""
+plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad segunda forma, ordenado', True, originalRank)
 
+##########################
+# Vecindad tercera forma #
+##########################
+
+print("\Tercer vecino, forma 1:")
+solutionNeighboor3 = createNeighboor3(solution)
+print(solutionNeighboor3)
+
+plotFunctions.plotAdjacencyMatrix(graph,solutionNeighboor3,'Vecino forma 3', labels)
+
+thirdFormRanking = [[],[]]
+iteration = []
+# Crear 100 vecinos
+for i in range(0,100):
+	solutionNeighboor3 = createNeighboor3(solutionNeighboor3)
+	rank, flag = rankSolution(graph, solutionNeighboor3)
+	thirdFormRanking[0].append(rank)
+	thirdFormRanking[1].append(flag)
+	iteration.append(i)
+plotFunctions.plotRanks(thirdFormRanking,iteration,'Vecindad tercera forma, desordenado', False, originalRank)
+
+# Ranking ordenado
+rankSorted, iterationSorted = mySort(thirdFormRanking, iteration)
+
+plotFunctions.plotRanks(rankSorted,iterationSorted,'Vecindad tercera forma, ordenado', True, originalRank)
+
+"""
 #GA
 
 def selectParents(population,nTopParents,nRandomParents):
@@ -126,7 +152,7 @@ def selectParents(population,nTopParents,nRandomParents):
 	newPopulation = np.concatenate((newPopulation,topPopulation))
 	return newPopulation
 
-def reproduce(problem,population,nChilds):
+def reproduce(problem,population, ):
 	i = 0
 	newPopulation = []
 	for i in range(0,nChilds):
@@ -179,8 +205,7 @@ for line in file:
 		graph[int(line[1])-1][int(line[2])-1] = 1
 		graph[int(line[2])-1][int(line[1])-1] = 1
 
-solution = createsolution(len(graph[0]))
-population = createPopulation(graph,solution,100)
+#population = createPopulation(graph,solution,100)
 
 
 nIterations = 100
@@ -191,3 +216,4 @@ while i < nIterations:
 	population = replace(parents,childPopulation)
 	i=i+1
 print(population)
+"""
