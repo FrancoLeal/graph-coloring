@@ -159,8 +159,28 @@ def selectParents(population,nTopParents,nRandomParents,nLessColors):
 	newPopulation = np.concatenate((newPopulation,topPopulation,lessColorPopulation))
 	return newPopulation
 def mutate(solution):
-	solution = createNeighboor3(solution)
-	return solution 
+	for i in range(0,len(solution)):
+		prob = random.random()
+		if(prob<0.5):
+			solution[i]=random.randint(0,len(solution)-1)
+	return solution
+
+def mix(parent1,parent2):
+	position1 = len(parent1[2])/3
+	position2 = 2*len(parent1[2])/3
+	child1 = []
+	child2 = []
+	for i in range(0,len(parent1[2])):
+		if(i<position1 or i>position1):
+			child1.append(parent1[2][i])
+			child2.append(parent2[2][i])
+		else:
+			child1.append(parent2[2][i])
+			child2.append(parent1[2][i])
+	child1 = np.array(child1)
+	child2 = np.array(child2)
+	return child1,child2
+		
 #Funcion que dados dos padres genera dos hijos, con 1% de prob de mutacion
 def reproduce(problem,population,nChilds):
 	i = 0
@@ -169,17 +189,7 @@ def reproduce(problem,population,nChilds):
 		lenPop = len(population)
 		parent1 = population[random.randint(0,lenPop-1)]
 		parent2 = population[random.randint(0,lenPop-1)]
-		position = random.randint(2,len(parent1[2])-2)
-		infoParent1 = parent1[2][0:position]
-		infoParent2 = parent2[2][position:len(parent2[2])]
-		infoParent1 = np.array(infoParent1)
-		infoParent2 = np.array(infoParent2)
-		child1 = np.concatenate((infoParent1,infoParent2))
-		infoParent2 = parent2[2][0:position]
-		infoParent1 = parent1[2][position:len(parent2[2])]
-		infoParent2 = np.array(infoParent2)
-		infoParent1 = np.array(infoParent1)
-		child2 = np.concatenate((infoParent2,infoParent1))
+		child1,child2 = mix(parent1,parent2)
 		mutate1 = random.random()
 		if mutate1<0.01:
 			child1 = mutate(child1)
@@ -220,7 +230,7 @@ def findBest(actualBest,population):
 			elif actualBest[0][0]<element[0][0]:
 				actualBest=element
 	return actualBest
-"""
+
 file = open("queen5_5.col","r")
 nNodes= 0
 graph = []
@@ -233,8 +243,8 @@ for line in file:
 		line = line.split()
 		graph[int(line[1])-1][int(line[2])-1] = 1
 		graph[int(line[2])-1][int(line[1])-1] = 1
-"""
-graph = sudoku.sudoku
+
+#graph = sudoku.sudoku
 print("**************************************")
 print("****************Creando solucion inicial**************")
 print("**************************************")
@@ -243,10 +253,10 @@ print("**************************************")
 print("****************Creando Poblacion**************")
 print("**************************************")
 
-nPop = 100
-nRandom = 80
-nTop = 20
-nParentsToRep = 100
+nPop = 300
+nRandom = 120
+nTop = 30
+nParentsToRep = 150
 
 population = createPopulation(graph,solution,nPop)
 
@@ -272,7 +282,7 @@ while i < nIterations:
 	#print("**************************************")
 	#print("****************REplace**************")
 	#print("**************************************")
-	population = replace(parents,childPopulation,40,40,60,60)
+	population = replace(parents,childPopulation,30,30,120,120)
 	best = findBest(best,population)
 	generations.append(i)
 	ranks.append(best[0])
