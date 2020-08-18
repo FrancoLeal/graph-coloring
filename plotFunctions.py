@@ -60,3 +60,32 @@ def plotRanks(ranking, xAxis, fileName, is_sorted, originalRank):
 	plt.savefig('plots/'+fileName+'.png', dpi=199)
 	plot_index += 1
 	plt.clf()
+
+def plotGenerationRanking(rankings, generations,fileName, originalRank, is_sorted):
+	fig = plt.figure(figsize=(20, 6))
+	if is_sorted:
+		originalRankList = [str(originalRank)]*len(generations)
+	else:
+		originalRankList = [originalRank]*len(generations)
+	i = 0
+	while i<len(rankings):
+		x = [generations[i]]
+		y = [rankings[i][0]]
+		if is_sorted:
+			x = [str(x[0])]
+			y = [str(y[0])]
+		if rankings[i][1]:
+			color = 'green'
+		else:
+			color = 'red'
+		plt.plot(x,y,linestyle='None',marker='.', color=color, markersize=10)
+		i += 1
+	red_patch = mpatches.Patch(color='red', label='Soluciones infactibles')
+	green_patch = mpatches.Patch(color='green', label='Soluciones factibles')
+	blue_patch = mpatches.Patch(color='blue', label='Ranking Mejor Solución Original')
+	plt.legend(handles=[green_patch, red_patch, blue_patch])
+	plt.plot(generations,originalRankList,'b')
+	plt.xlabel('Generación')
+	plt.ylabel('Ranking')
+	plt.savefig('plots/'+fileName+'.png', dpi=199)
+	plt.clf()

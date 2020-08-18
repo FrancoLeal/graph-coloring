@@ -14,6 +14,7 @@ from utils import mySort
 import sudoku
 #graph = np.zeros((16,16),dtype=int);
 #print(graph)
+"""
 
 graph = [
             #1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
@@ -34,7 +35,6 @@ graph = [
 			[0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 1 , 1 , 0 , 1],
 			[0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 0]
 		]
-"""
 graph = [
 	[0,1,0,0],
 	[1,0,1,1],
@@ -159,10 +159,7 @@ def selectParents(population,nTopParents,nRandomParents,nLessColors):
 	newPopulation = np.concatenate((newPopulation,topPopulation,lessColorPopulation))
 	return newPopulation
 def mutate(solution):
-	for i in range(0,len(solution)):
-		prob = random.random()
-		if(prob<0.1):
-			solution[i]=random.randint(0,len(solution)-1)
+	solution = createNeighboor3(solution)
 	return solution 
 #Funcion que dados dos padres genera dos hijos, con 1% de prob de mutacion
 def reproduce(problem,population,nChilds):
@@ -191,7 +188,10 @@ def reproduce(problem,population,nChilds):
 			child2 = mutate(child2)
 		newPopulation.append(np.array([rankSolution(problem,child1),len(np.unique(child1)),child1]))
 		newPopulation.append(np.array([rankSolution(problem,child2),len(np.unique(child2)),child2]))
-		
+		print("Colores hijo 1: ",len(np.unique(child1)))
+		print("Colores hijo 2: ",len(np.unique(child2)))
+		print("Ranking hijo 1: ",rankSolution(problem,child1))
+		print("Ranking hijo 2: ",rankSolution(problem,child2))
 	return np.array(newPopulation)
 #Funcion que elije 20 padres con menos colores, 20 padres aleatorios, 25 hijos con menos colores y 24 hijos aleatorios
 def replace(oldPop,child,nTopOld,nTopChild,nRandomOld,nRandomChild):
@@ -243,20 +243,22 @@ print("**************************************")
 print("****************Creando Poblacion**************")
 print("**************************************")
 
-nPop = 200
+nPop = 100
 nRandom = 80
 nTop = 20
 nParentsToRep = 100
 
 population = createPopulation(graph,solution,nPop)
 
-
-nIterations = 1000
+nIterations = 100
 i = 0
 print("**************************************")
 print("****************Iterando**************")
 print("**************************************")
 best = []
+bestOriginalRank = findBest(best,population)
+generations = []
+ranks = []
 while i < nIterations:
 	print(i)
 	#print("**************************************")
@@ -272,8 +274,10 @@ while i < nIterations:
 	#print("**************************************")
 	population = replace(parents,childPopulation,40,40,60,60)
 	best = findBest(best,population)
+	generations.append(i)
+	ranks.append(best[0])
 	i=i+1
-	print(population)
-	print("Best sol:")
-	print(best)
+print(generations)
+print(ranks)
+plotFunctions.plotGenerationRanking(ranks, generations, "Generaciones vs Ranking", bestOriginalRank[0][0], False)
 	
