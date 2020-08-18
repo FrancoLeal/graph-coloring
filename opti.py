@@ -11,7 +11,7 @@ from neighborFunctions import (
 	rankSolution
 )
 from utils import mySort
-
+import sudoku
 #graph = np.zeros((16,16),dtype=int);
 #print(graph)
 
@@ -210,7 +210,7 @@ def replace(oldPop,child):
 	newPop = np.concatenate((topOldPop,topChildPop,selectedChild,selectedOldPop))
 	return newPop
 
-
+"""
 file = open("myciel3.col","r")
 nNodes= 0
 graph = []
@@ -223,6 +223,8 @@ for line in file:
 		line = line.split()
 		graph[int(line[1])-1][int(line[2])-1] = 1
 		graph[int(line[2])-1][int(line[1])-1] = 1
+"""
+graph = sudoku.sudoku
 print("**************************************")
 print("****************Creando solucion inicial**************")
 print("**************************************")
