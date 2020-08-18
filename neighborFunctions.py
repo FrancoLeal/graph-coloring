@@ -14,7 +14,7 @@ def createsolution(nNodes):
 def rankSolution(problem,solution):
 	node1 = 0
 	length = len(problem)
-	rank = 0
+	rank = 0#len(np.unique(solution))
 	while node1 < length:
 		# Para recorrer solo parte superior
 		node2 = node1+1
@@ -69,8 +69,8 @@ def createNeighboor3(solution):
 def createPopulation(problem,solution,nNeighboors):
 	population = []
 	for i in range(0,nNeighboors):
-		solution = createNeighboor3(solution)
+		solution = np.random.randint(len(solution),size=len(solution))#createNeighboor3(solution)
 		rank = rankSolution(problem,solution)
-		solutionWithFitness = np.array([rank,solution])
+		solutionWithFitness = np.array([rank,len(np.unique(solution)),solution])
 		population.append(solutionWithFitness)
 	return np.array(population)
