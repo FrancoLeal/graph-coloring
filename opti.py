@@ -9,13 +9,13 @@ from neighborFunctions import (
 	createPopulation,
 	createsolution,
 	rankSolution
+	
 )
 from utils import mySort
 import sudoku
 #graph = np.zeros((16,16),dtype=int);
 #print(graph)
 """
-
 graph = [
             #1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
 			[0 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0],
@@ -35,13 +35,21 @@ graph = [
 			[0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 1 , 1 , 0 , 1],
 			[0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 0]
 		]
+"""
 graph = [
 	[0,1,0,0],
 	[1,0,1,1],
 	[0,1,0,1],
 	[0,1,1,0],
 ]
-"""
+
+graph = [
+	[0,1,0,1],
+	[1,0,1,1],
+	[0,1,0,1],
+	[1,1,1,0],
+]
+
 """
 print("Matriz de adjacencia:")
 for line in graph:
@@ -147,9 +155,9 @@ def selectParents(population,nTopParents,nRandomParents,nLessColors):
 	sortedPopulation = population[population[:,0].argsort()[::-1]]
 	#print(sortedPopulation)
 	topPopulation = sortedPopulation[0:nTopParents]
-	for i in range(0,nRandomParents):
-		pos = random.randint(0,len(sortedPopulation)-1)
-		newPopulation.append(sortedPopulation[pos])
+	randomList = random.sample(range(nTopParents, len(population)), nRandomParents)
+	for i in randomList:
+		newPopulation.append(sortedPopulation[i])
 	sortedPopulationByColors = population[population[:,1].argsort()]
 	#print("++++++++++++++++++++++++++++++++++++")
 	#print(sortedPopulation)
@@ -159,15 +167,13 @@ def selectParents(population,nTopParents,nRandomParents,nLessColors):
 	newPopulation = np.concatenate((newPopulation,topPopulation,lessColorPopulation))
 	return newPopulation
 def mutate(solution):
-	for i in range(0,len(solution)):
-		prob = random.random()
-		if(prob<0.5):
-			solution[i]=random.randint(0,len(solution)-1)
+	solution = createNeighboor3(solution)
 	return solution
 
 def mix(parent1,parent2):
-	position1 = len(parent1[2])/3
-	position2 = 2*len(parent1[2])/3
+	positionList = random.sample(range(0, len(parent1[2])),2)
+	position1 = min(positionList)
+	position2 = max(positionList)
 	child1 = []
 	child2 = []
 	for i in range(0,len(parent1[2])):
@@ -187,8 +193,9 @@ def reproduce(problem,population,nChilds):
 	newPopulation = []
 	for i in range(0,nChilds):
 		lenPop = len(population)
-		parent1 = population[random.randint(0,lenPop-1)]
-		parent2 = population[random.randint(0,lenPop-1)]
+		positionsList = random.sample(range(0, lenPop), 2)
+		parent1 = population[positionsList[0]]
+		parent2 = population[positionsList[1]]
 		child1,child2 = mix(parent1,parent2)
 		mutate1 = random.random()
 		if mutate1<0.01:
@@ -198,10 +205,12 @@ def reproduce(problem,population,nChilds):
 			child2 = mutate(child2)
 		newPopulation.append(np.array([rankSolution(problem,child1),len(np.unique(child1)),child1]))
 		newPopulation.append(np.array([rankSolution(problem,child2),len(np.unique(child2)),child2]))
+		"""
 		print("Colores hijo 1: ",len(np.unique(child1)))
 		print("Colores hijo 2: ",len(np.unique(child2)))
 		print("Ranking hijo 1: ",rankSolution(problem,child1))
 		print("Ranking hijo 2: ",rankSolution(problem,child2))
+		"""
 	return np.array(newPopulation)
 #Funcion que elije 20 padres con menos colores, 20 padres aleatorios, 25 hijos con menos colores y 24 hijos aleatorios
 def replace(oldPop,child,nTopOld,nTopChild,nRandomOld,nRandomChild):
@@ -223,14 +232,20 @@ def replace(oldPop,child,nTopOld,nTopChild,nRandomOld,nRandomChild):
 def findBest(actualBest,population):
 	if actualBest==[]:
 		actualBest = population[0]
+	aux = True
 	for element in population:
 		if element[0][1]:
 			if not actualBest[0][1]:
 				actualBest=element
 			elif actualBest[0][0]<element[0][0]:
 				actualBest=element
+			aux = False
+	for element in population:
+		if aux:
+			if actualBest[0][0]<element[0][0]:
+				actualBest=element
 	return actualBest
-
+"""
 file = open("queen5_5.col","r")
 nNodes= 0
 graph = []
@@ -243,8 +258,12 @@ for line in file:
 		line = line.split()
 		graph[int(line[1])-1][int(line[2])-1] = 1
 		graph[int(line[2])-1][int(line[1])-1] = 1
-
-#graph = sudoku.sudoku
+"""
+graph = sudoku.sudoku
+# Labels
+labels = {}
+for i in range(0, len(graph)):
+	labels[i] = i
 print("**************************************")
 print("****************Creando solucion inicial**************")
 print("**************************************")
@@ -260,17 +279,21 @@ nParentsToRep = 150
 
 population = createPopulation(graph,solution,nPop)
 
-nIterations = 100
+nIterations = 200
 i = 0
 print("**************************************")
 print("****************Iterando**************")
 print("**************************************")
 best = []
 bestOriginalRank = findBest(best,population)
+print(bestOriginalRank[-1])
+plotFunctions.plotAdjacencyMatrix(graph,bestOriginalRank[-1],'Primera versión', labels)
 generations = []
 ranks = []
+nColors = []
 while i < nIterations:
-	print(i)
+	print(len(population))
+	#print(i)
 	#print("**************************************")
 	#print("****************Parents**************")
 	#print("**************************************")
@@ -286,8 +309,11 @@ while i < nIterations:
 	best = findBest(best,population)
 	generations.append(i)
 	ranks.append(best[0])
+	nColors.append(np.unique(best[1])[0])
 	i=i+1
-print(generations)
-print(ranks)
+print(labels)
 plotFunctions.plotGenerationRanking(ranks, generations, "Generaciones vs Ranking", bestOriginalRank[0][0], False)
+plotFunctions.plotNColors(generations, nColors, "Generaciones vs Cantidad Colores")
+print(best[-1])
+plotFunctions.plotAdjacencyMatrix(graph,best[-1],'Ultima versión', labels)
 	

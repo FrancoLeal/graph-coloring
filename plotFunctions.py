@@ -89,3 +89,11 @@ def plotGenerationRanking(rankings, generations,fileName, originalRank, is_sorte
 	plt.ylabel('Ranking')
 	plt.savefig('plots/'+fileName+'.png', dpi=199)
 	plt.clf()
+def plotNColors(generations, colors, fileName):
+	fig = plt.figure(figsize=(20, 6))
+	
+	plt.plot(generations,colors,linestyle='None',marker='.', color='b', markersize=10)
+	plt.xlabel('Generación')
+	plt.ylabel('Cantidad Colores')
+	plt.savefig('plots/'+fileName+'.png', dpi=199)
+	plt.clf()

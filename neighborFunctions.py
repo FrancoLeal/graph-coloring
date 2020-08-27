@@ -37,7 +37,7 @@ def rankSolution(problem,solution):
 				colorNode1 = solution[node1]
 				colorNode2 = solution[node2]
 				if colorNode1 == colorNode2:
-					rank -= 1
+					rank -= 2
 					flag = False
 			node2 += 1
 		node1 += 1
