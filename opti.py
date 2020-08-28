@@ -13,6 +13,7 @@ from neighborFunctions import (
 )
 from utils import mySort
 import sudoku
+import scipy
 #graph = np.zeros((16,16),dtype=int);
 #print(graph)
 """
@@ -230,7 +231,7 @@ def replace(oldPop,child,nTopOld,nTopChild,nRandomOld,nRandomChild):
 	return newPop
 
 def findBest(actualBest,population):
-	if actualBest==[]:
+	if len(actualBest)==0:
 		actualBest = population[0]
 	aux = True
 	for element in population:
@@ -276,44 +277,68 @@ nPop = 300
 nRandom = 120
 nTop = 30
 nParentsToRep = 150
+allData = []
+allDataColors = []
+generationsAux = []
+means = []
+meansColors = []
+for v in range(1,12):
+	population = createPopulation(graph,solution,nPop)
 
-population = createPopulation(graph,solution,nPop)
-
-nIterations = 200
-i = 0
-print("**************************************")
-print("****************Iterando**************")
-print("**************************************")
-best = []
-bestOriginalRank = findBest(best,population)
-print(bestOriginalRank[-1])
-plotFunctions.plotAdjacencyMatrix(graph,bestOriginalRank[-1],'Primera versión', labels)
-generations = []
-ranks = []
-nColors = []
-while i < nIterations:
-	print(len(population))
-	#print(i)
-	#print("**************************************")
-	#print("****************Parents**************")
-	#print("**************************************")
-	parents = selectParents(population,nTop,nRandom,0)
-	#print("**************************************")
-	#print("****************Reproduce**************")
-	#print("**************************************")
-	childPopulation = reproduce(graph,parents,nParentsToRep)
-	#print("**************************************")
-	#print("****************REplace**************")
-	#print("**************************************")
-	population = replace(parents,childPopulation,30,30,120,120)
-	best = findBest(best,population)
-	generations.append(i)
-	ranks.append(best[0])
-	nColors.append(np.unique(best[1])[0])
-	i=i+1
-print(labels)
-plotFunctions.plotGenerationRanking(ranks, generations, "Generaciones vs Ranking", bestOriginalRank[0][0], False)
-plotFunctions.plotNColors(generations, nColors, "Generaciones vs Cantidad Colores")
-print(best[-1])
-plotFunctions.plotAdjacencyMatrix(graph,best[-1],'Ultima versión', labels)
-	
+	nIterations = 100
+	i = 0
+	print("**************************************")
+	print("***Prueba N°: ",v,"***")
+	print("**************************************")
+	best = []
+	bestOriginalRank = findBest(best,population)
+	plotFunctions.plotAdjacencyMatrix(graph,bestOriginalRank[-1],'Primera versión', labels)
+	generations = []
+	ranks = []
+	nColors = []
+	meanDataAux = []
+	while i < nIterations:
+		#print(i)
+		#print("**************************************")
+		#print("****************Parents**************")
+		#print("**************************************")
+		parents = selectParents(population,nTop,nRandom,0)
+		#print("**************************************")
+		#print("****************Reproduce**************")
+		#print("**************************************")
+		childPopulation = reproduce(graph,parents,nParentsToRep)
+		#print("**************************************")
+		#print("****************REplace**************")
+		#print("**************************************")
+		population = replace(parents,childPopulation,30,30,120,120)
+		best = findBest(best,population)
+		generations.append(i+1)
+		ranks.append(best[0])
+		nColors.append(best[1])
+		i=i+1
+		# Se agregan todos los rankins y los colores, ya que en los otros arreglos
+		# se pierden
+		allData.append(best[0])
+		allDataColors.append(nColors[0])
+		generationsAux.append(i)
+	plotFunctions.plotGenerationRanking(ranks, generations, "Generaciones vs Ranking "+str(v), bestOriginalRank[0][0], False)
+	plotFunctions.plotNColors(generations, nColors, "Generaciones vs Cantidad Colores  "+str(v))
+	plotFunctions.plotAdjacencyMatrix(graph,best[-1],'Ultima versión', labels)
+# Como primero se calcula cada iteración de cada generación, es necesario hacer
+# este proceso para calcular los promedios, lo que hace es que toma los datos
+# correspondiente a su generación solamente
+for i in range(0, nIterations):
+	j = 0
+	meanDataAux=[]
+	meanColorsAux=[]
+	while j<len(allData):
+		if(j%nIterations==0):
+			meanDataAux.append(allData[j+i][0])
+			meanColorsAux.append(allDataColors[j+1])
+		j = j+1
+	means.append(scipy.mean(meanDataAux))
+	meansColors.append(scipy.mean(meanColorsAux))
+print(allDataColors)
+print(meanColorsAux)
+plotFunctions.plotFinals(generations,generationsAux,allData,means,'TEST')
+plotFunctions.plotFinalsColors(generations,generationsAux,allDataColors,meansColors,'TEST2')

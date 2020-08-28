@@ -86,13 +86,40 @@ def plotGenerationRanking(rankings, generations,fileName, originalRank, is_sorte
 	plt.legend(handles=[green_patch, red_patch, blue_patch])
 	plt.plot(generations,originalRankList,'b')
 	plt.xlabel('Generación')
-	plt.ylabel('Ranking')
+	plt.ylabel('Ranking de Mejor Hijo')
 	plt.savefig('plots/'+fileName+'.png', dpi=199)
 	plt.clf()
 def plotNColors(generations, colors, fileName):
 	fig = plt.figure(figsize=(20, 6))
 	
 	plt.plot(generations,colors,linestyle='None',marker='.', color='b', markersize=10)
+	plt.xlabel('Generación')
+	plt.ylabel('Cantidad Colores')
+	plt.savefig('plots/'+fileName+'.png', dpi=199)
+	plt.clf()
+
+def plotFinals(generations, generationsAux, allData, means, fileName):
+	fig = plt.figure(figsize=(20, 6))
+	i = 0
+	while i<len(allData):
+		x = [generationsAux[i]]
+		y = [allData[i][0]]
+		if allData[i][1]:
+			color = 'green'
+		else:
+			color = 'red'
+		plt.plot(x,y,linestyle='None',marker='.', color=color, markersize=10)
+		i += 1
+	plt.plot(generations,means, linewidth=3, color='blue')
+	plt.xlabel('Generación')
+	plt.ylabel('Rankings')
+	plt.savefig('plots/'+fileName+'.png', dpi=199)
+	plt.clf()
+
+def plotFinalsColors(generations,generationsAux,allColors, means, fileName):
+	fig = plt.figure(figsize=(20, 6))
+	plt.plot(generationsAux,allColors,linestyle='None',marker='.', color='black', markersize=10)
+	plt.plot(generations,means, linewidth=3, color='blue')
 	plt.xlabel('Generación')
 	plt.ylabel('Cantidad Colores')
 	plt.savefig('plots/'+fileName+'.png', dpi=199)
