@@ -268,7 +268,7 @@ for i in range(0, len(graph)):
 print("**************************************")
 print("****************Creando solucion inicial**************")
 print("**************************************")
-solution = createsolution(len(graph[0]))
+solution = [1, 4, 9, 8, 6, 7, 2, 5, 3, 3, 0, 5, 9, 2, 4, 8, 6, 10, 6, 8, 2, 0, 1, 3, 0, 0, 1, 0, 5, 4, 1, 7, 10, 3, 9, 2, 2, 7, 3, 4, 0, 6, 5, 1, 8, 9, 1, 6, 2, 8, 5, 7, 10, 4, 5, 3, 0, 10, 4, 8, 6, 2, 7, 4, 6, 10, 7, 3, 0, 1, 8, 5, 8, 2, 7, 6, 5, 1, 4, 3, 0]
 print("**************************************")
 print("****************Creando Poblacion**************")
 print("**************************************")
@@ -284,8 +284,7 @@ means = []
 meansColors = []
 for v in range(1,12):
 	population = createPopulation(graph,solution,nPop)
-
-	nIterations = 100
+	nIterations = 200
 	i = 0
 	print("**************************************")
 	print("***Prueba N°: ",v,"***")
@@ -319,7 +318,7 @@ for v in range(1,12):
 		# Se agregan todos los rankins y los colores, ya que en los otros arreglos
 		# se pierden
 		allData.append(best[0])
-		allDataColors.append(nColors[0])
+		allDataColors.append(best[1])
 		generationsAux.append(i)
 	plotFunctions.plotGenerationRanking(ranks, generations, "Generaciones vs Ranking "+str(v), bestOriginalRank[0][0], False)
 	plotFunctions.plotNColors(generations, nColors, "Generaciones vs Cantidad Colores  "+str(v))
@@ -334,11 +333,9 @@ for i in range(0, nIterations):
 	while j<len(allData):
 		if(j%nIterations==0):
 			meanDataAux.append(allData[j+i][0])
-			meanColorsAux.append(allDataColors[j+1])
+			meanColorsAux.append(allDataColors[j+i])
 		j = j+1
 	means.append(scipy.mean(meanDataAux))
 	meansColors.append(scipy.mean(meanColorsAux))
-print(allDataColors)
-print(meanColorsAux)
 plotFunctions.plotFinals(generations,generationsAux,allData,means,'TEST')
 plotFunctions.plotFinalsColors(generations,generationsAux,allDataColors,meansColors,'TEST2')

@@ -118,9 +118,33 @@ def plotFinals(generations, generationsAux, allData, means, fileName):
 
 def plotFinalsColors(generations,generationsAux,allColors, means, fileName):
 	fig = plt.figure(figsize=(20, 6))
-	plt.plot(generationsAux,allColors,linestyle='None',marker='.', color='black', markersize=10)
+	plt.scatter(generationsAux,allColors, color='black')
 	plt.plot(generations,means, linewidth=3, color='blue')
 	plt.xlabel('Generación')
 	plt.ylabel('Cantidad Colores')
 	plt.savefig('plots/'+fileName+'.png', dpi=199)
+	plt.clf()
+
+def plotGreedy(iterations, ranks, colors, fileName):
+	fig = plt.figure(figsize=(20, 6))
+	i = 0
+	while i<len(ranks):
+		x = [iterations[i]]
+		y = [ranks[i][0]]
+		if ranks[i][1]:
+			color = 'green'
+		else:
+			color = 'red'
+		plt.plot(x,y,linestyle='None',marker='.', color=color, markersize=10)
+		i += 1
+	plt.savefig('plots/greedy/Iteraciones vs Ranking '+fileName+'.png', dpi=199)
+	plt.clf()
+	i = 0
+	while i<len(colors):
+		x = [iterations[i]]
+		y = [colors[i]]
+		plt.plot(x,y,linestyle='None',marker='.', color='b', markersize=10)
+		i += 1
+	plt.savefig('plots/greedy/Iteraciones vs Cantidad Colores '+fileName+'.png', dpi=199)
+
 	plt.clf()
