@@ -2,6 +2,7 @@ import random
 import math
 import plotFunctions
 import numpy as np
+import timeit
 from neighborFunctions import (
 	createNeighboor1,
 	createNeighboor2,
@@ -187,7 +188,9 @@ def mix(parent1,parent2):
 	child1 = np.array(child1)
 	child2 = np.array(child2)
 	return child1,child2
-		
+def bestN(population,n):
+	sortedPop = population[population[:,1].argsort()]
+	return sortedPop[0:n]		
 #Funcion que dados dos padres genera dos hijos, con 1% de prob de mutacion
 def reproduce(problem,population,nChilds):
 	i = 0
@@ -214,20 +217,19 @@ def reproduce(problem,population,nChilds):
 		"""
 	return np.array(newPopulation)
 #Funcion que elije 20 padres con menos colores, 20 padres aleatorios, 25 hijos con menos colores y 24 hijos aleatorios
-def replace(oldPop,child,nTopOld,nTopChild,nRandomOld,nRandomChild):
+def replace(population, oldPop,child,nTopOld,nTopChild,nRandomOld,nRandomChild):
 	newPop = []
 	sortedOldByColors = oldPop[oldPop[:,1].argsort()]
 	topOldPop = sortedOldByColors[0:nTopOld]
+	print(len(oldPop))
 	selectedOldPop = random.sample(list(oldPop),nRandomOld)
 	sortedChildByColors = child[child[:,1].argsort()]
 	topChildPop = sortedChildByColors[0:nTopChild]
-	selectedChild = random.sample(list(child),nRandomChild)
 	topOldPop = np.array(topOldPop)
 	topChildPop = np.array(topChildPop)
 	selectedOldPop = np.array(selectedOldPop)
-	selectedChild = np.array(selectedChild)
 
-	newPop = np.concatenate((topOldPop,topChildPop,selectedChild,selectedOldPop))
+	newPop = np.concatenate((topOldPop,topChildPop,selectedOldPop))
 	return newPop
 
 def findBest(actualBest,population):
@@ -246,8 +248,7 @@ def findBest(actualBest,population):
 			if actualBest[0][0]<element[0][0]:
 				actualBest=element
 	return actualBest
-"""
-file = open("queen5_5.col","r")
+file = open("myciel3.col","r")
 nNodes= 0
 graph = []
 for line in file:
@@ -259,83 +260,127 @@ for line in file:
 		line = line.split()
 		graph[int(line[1])-1][int(line[2])-1] = 1
 		graph[int(line[2])-1][int(line[1])-1] = 1
-"""
 graph = sudoku.sudoku
-# Labels
-labels = {}
-for i in range(0, len(graph)):
-	labels[i] = i
-print("**************************************")
-print("****************Creando solucion inicial**************")
-print("**************************************")
-solution = [1, 4, 9, 8, 6, 7, 2, 5, 3, 3, 0, 5, 9, 2, 4, 8, 6, 10, 6, 8, 2, 0, 1, 3, 0, 0, 1, 0, 5, 4, 1, 7, 10, 3, 9, 2, 2, 7, 3, 4, 0, 6, 5, 1, 8, 9, 1, 6, 2, 8, 5, 7, 10, 4, 5, 3, 0, 10, 4, 8, 6, 2, 7, 4, 6, 10, 7, 3, 0, 1, 8, 5, 8, 2, 7, 6, 5, 1, 4, 3, 0]
-print("**************************************")
-print("****************Creando Poblacion**************")
-print("**************************************")
 
-nPop = 300
-nRandom = 120
-nTop = 30
-nParentsToRep = 150
-allData = []
-allDataColors = []
-generationsAux = []
-means = []
-meansColors = []
-for v in range(1,12):
-	population = createPopulation(graph,solution,nPop)
-	nIterations = 200
-	i = 0
-	print("**************************************")
-	print("***Prueba N°: ",v,"***")
-	print("**************************************")
-	best = []
-	bestOriginalRank = findBest(best,population)
-	plotFunctions.plotAdjacencyMatrix(graph,bestOriginalRank[-1],'Primera versión', labels)
-	generations = []
-	ranks = []
-	nColors = []
-	meanDataAux = []
-	while i < nIterations:
-		#print(i)
-		#print("**************************************")
-		#print("****************Parents**************")
-		#print("**************************************")
-		parents = selectParents(population,nTop,nRandom,0)
-		#print("**************************************")
-		#print("****************Reproduce**************")
-		#print("**************************************")
-		childPopulation = reproduce(graph,parents,nParentsToRep)
-		#print("**************************************")
-		#print("****************REplace**************")
-		#print("**************************************")
-		population = replace(parents,childPopulation,30,30,120,120)
-		best = findBest(best,population)
-		generations.append(i+1)
-		ranks.append(best[0])
-		nColors.append(best[1])
-		i=i+1
-		# Se agregan todos los rankins y los colores, ya que en los otros arreglos
-		# se pierden
-		allData.append(best[0])
-		allDataColors.append(best[1])
-		generationsAux.append(i)
-	plotFunctions.plotGenerationRanking(ranks, generations, "Generaciones vs Ranking "+str(v), bestOriginalRank[0][0], False)
-	plotFunctions.plotNColors(generations, nColors, "Generaciones vs Cantidad Colores  "+str(v))
-	plotFunctions.plotAdjacencyMatrix(graph,best[-1],'Ultima versión', labels)
-# Como primero se calcula cada iteración de cada generación, es necesario hacer
-# este proceso para calcular los promedios, lo que hace es que toma los datos
-# correspondiente a su generación solamente
-for i in range(0, nIterations):
-	j = 0
-	meanDataAux=[]
-	meanColorsAux=[]
-	while j<len(allData):
-		if(j%nIterations==0):
-			meanDataAux.append(allData[j+i][0])
-			meanColorsAux.append(allDataColors[j+i])
-		j = j+1
-	means.append(scipy.mean(meanDataAux))
-	meansColors.append(scipy.mean(meanColorsAux))
-plotFunctions.plotFinals(generations,generationsAux,allData,means,'TEST')
-plotFunctions.plotFinalsColors(generations,generationsAux,allDataColors,meansColors,'TEST2')
+
+params = [
+	[400,180,200,200,140,140],
+	[300,120,150,150,90,90],
+	[200,80,100,100,60,60]
+]
+datasets = ["queen7","queen11","queen13"]
+datasets2 = ["queen7_7.col","queen11_11.col","queen13_13.col"]
+for datasetAux in range(2,3):
+	file = open(datasets2[datasetAux],"r")
+	nNodes= 0
+	graph = []
+	for line in file:
+		if line[0]=="p":
+			line = line.split()
+			nNodes = int(line[2])
+			graph = np.zeros((nNodes,nNodes),dtype=np.int16)
+		if line[0]=="e":
+			line = line.split()
+			graph[int(line[1])-1][int(line[2])-1] = 1
+			graph[int(line[2])-1][int(line[1])-1] = 1
+	# Labels
+	labels = {}
+	for i in range(0, len(graph)):
+		labels[i] = i
+	nombreProblema = datasets[datasetAux]
+	conf = 1
+	for conf in range(1, 4):
+		print("Configuracion: ", conf)
+		nPop = params[conf-1][0]
+		nRandom = params[conf-1][1]
+		nParents = params[conf-1][2]
+		nChilds = params[conf-1][3]
+		nBestParents = params[conf-1][4]
+		nBestChilds = params[conf-1][5]
+		version = nombreProblema+"/Configuracion{0}/nPop {1} nRandom {2} nParents {3} nChilds {4} nBestParents {5} nBestChilds {6}".format(
+			conf, nPop, nRandom, nParents, nChilds, nBestParents, nBestChilds
+		)
+		allData = []
+		allDataColors = []
+		generationsAux = []
+		means = []
+		meansColors = []
+		timeList = []
+		timeList2 = []
+		for v in range(1,12):
+			solution = createsolution(len(graph))
+			start = timeit.default_timer()
+			population = createPopulation(graph,solution,nPop)
+			nIterations = 50
+			i = 0
+			print("**************************************")
+			print("***Prueba N°: ",v,"***")
+			print("**************************************")
+			best = []
+			bestOriginalRank = findBest(best,population)
+			generations = []
+			ranks = []
+			nColors = []
+			meanDataAux = []
+			while i < nIterations:
+				#print(i)
+				#print("**************************************")
+				#print("****************Parents**************")
+				#print("**************************************")
+				parents = selectParents(population,nParents,nRandom,0)
+				#print("**************************************")
+				#print("****************Reproduce**************")
+				#print("**************************************")
+				childPopulation = reproduce(graph,parents,nChilds)
+				#print("**************************************")
+				#print("****************REplace**************")
+				#print("**************************************")
+				population = np.array(list(bestN(parents,nBestParents)) + list(bestN(childPopulation,nBestChilds)) + list(random.sample(list(population),nRandom)))
+				best = findBest(best,population)
+				generations.append(i+1)
+				ranks.append(best[0])
+				nColors.append(best[1])
+				i=i+1
+				# Se agregan todos los rankins y los colores, ya que en los otros arreglos
+				# se pierden
+				allData.append(best[0])
+				allDataColors.append(best[1])
+				generationsAux.append(i)
+			stop = timeit.default_timer()
+			timeList.append(stop-start)
+			timeList2.append(str(stop-start))
+			plotFunctions.plotGenerationRanking(ranks, generations, version+"Generaciones vs Ranking "+str(v), bestOriginalRank[0][0], False)
+			plotFunctions.plotNColors(generations, nColors, version+"Generaciones vs Cantidad Colores  "+str(v))
+		# Como primero se calcula cada iteración de cada generación, es necesario hacer
+		# este proceso para calcular los promedios, lo que hace es que toma los datos
+		# correspondiente a su generación solamente
+		for i in range(0, nIterations):
+			j = 0
+			meanDataAux=[]
+			meanColorsAux=[]
+			while j<len(allData):
+				if(j%nIterations==0):
+					meanDataAux.append(allData[j+i][0])
+					meanColorsAux.append(allDataColors[j+i])
+				j = j+1
+			means.append(scipy.mean(meanDataAux))
+			meansColors.append(scipy.mean(meanColorsAux))
+		plotFunctions.plotFinals(generations,generationsAux,allData,means,version+'Promedios Ranking')
+		plotFunctions.plotFinalsColors(generations,generationsAux,allDataColors,meansColors,version+'Promedios Colores')
+
+		nombreArchivo = nombreProblema+"-Configuracion{0}-".format(conf)
+		nombreArchivo = nombreArchivo + "resumen.txt"
+		f = open(nombreArchivo, "w")
+		f.write("Tiempos:")
+		f.write("\n")
+		f.write(" ".join(timeList2))
+		f.write("\n")
+		f.write("Promedio Tiempos: "+str(scipy.mean(timeList)))
+		f.write("\n")
+		f.write("Mejores Promedios:")
+		f.write("\n")
+		f.write("Ranking: "+str(means[-1]))
+		f.write("\n")
+		f.write("Colores: "+str(meansColors[-1]))
+		f.close()
+

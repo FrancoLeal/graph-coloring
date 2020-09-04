@@ -110,7 +110,11 @@ def plotFinals(generations, generationsAux, allData, means, fileName):
 			color = 'red'
 		plt.plot(x,y,linestyle='None',marker='.', color=color, markersize=10)
 		i += 1
-	plt.plot(generations,means, linewidth=3, color='blue')
+	red_patch = mpatches.Patch(color='red', label='Soluciones infactibles')
+	green_patch = mpatches.Patch(color='green', label='Soluciones factibles')
+	blue_patch = mpatches.Patch(color='blue', label='Promedio Rankings')
+	plt.legend(handles=[green_patch, red_patch, blue_patch])
+	plt.plot(generations,means, linewidth=6, color='blue')
 	plt.xlabel('Generación')
 	plt.ylabel('Rankings')
 	plt.savefig('plots/'+fileName+'.png', dpi=199)
@@ -120,6 +124,10 @@ def plotFinalsColors(generations,generationsAux,allColors, means, fileName):
 	fig = plt.figure(figsize=(20, 6))
 	plt.scatter(generationsAux,allColors, color='black')
 	plt.plot(generations,means, linewidth=3, color='blue')
+	red_patch = mpatches.Patch(color='red', label='Soluciones infactibles')
+	green_patch = mpatches.Patch(color='green', label='Soluciones factibles')
+	blue_patch = mpatches.Patch(color='blue', label='Promedio Colores')
+	plt.legend(handles=[green_patch, red_patch, blue_patch])
 	plt.xlabel('Generación')
 	plt.ylabel('Cantidad Colores')
 	plt.savefig('plots/'+fileName+'.png', dpi=199)
@@ -137,7 +145,10 @@ def plotGreedy(iterations, ranks, colors, fileName):
 			color = 'red'
 		plt.plot(x,y,linestyle='None',marker='.', color=color, markersize=10)
 		i += 1
-	plt.savefig('plots/greedy/Iteraciones vs Ranking '+fileName+'.png', dpi=199)
+	filename = 'plots/greedy/{0}/Iteraciones vs Ranking'.format(fileName)
+	plt.xlabel('Iteración')
+	plt.ylabel('Ranking')
+	plt.savefig(filename+'.png', dpi=199)
 	plt.clf()
 	i = 0
 	while i<len(colors):
@@ -145,6 +156,9 @@ def plotGreedy(iterations, ranks, colors, fileName):
 		y = [colors[i]]
 		plt.plot(x,y,linestyle='None',marker='.', color='b', markersize=10)
 		i += 1
-	plt.savefig('plots/greedy/Iteraciones vs Cantidad Colores '+fileName+'.png', dpi=199)
+	filename = 'plots/greedy/{0}/Iteraciones vs Cantidad Colores'.format(fileName)
+	plt.xlabel('Iteración')
+	plt.ylabel('Cantidad Colores')
+	plt.savefig(filename+'.png', dpi=199)
 
 	plt.clf()

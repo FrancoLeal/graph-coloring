@@ -1,0 +1,6 @@
+Tiempos:
+59.39097959100036
+Promedio Tiempos: 59.39097959100036
+Mejores Promedios:
+Ranking: 41.0
+Colores: 99.0

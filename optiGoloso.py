@@ -6,13 +6,19 @@ import random
 import plotFunctions
 #Your statements here
 
+file = open("myciel3.col","r")
+nNodes= 0
+graph = []
+for line in file:
+	if line[0]=="p":
+		line = line.split()
+		nNodes = int(line[2])
+		graph = np.zeros((nNodes,nNodes),dtype=np.int16)
+	if line[0]=="e":
+		line = line.split()
+		graph[int(line[1])-1][int(line[2])-1] = 1
+		graph[int(line[2])-1][int(line[1])-1] = 1
 
-graph = [
-	[0,1,0,1],
-	[1,0,1,1],
-	[0,1,0,1],
-	[1,1,1,0],
-]
 graph = sudoku.sudoku
 g = dict()
 i = 0
@@ -63,6 +69,6 @@ for i in range(0, 1000):
     colorsList.append(nColors)
     iteration.append(i)
 
-plotFunctions.plotGreedy(iteration, ranksList, colorsList, 'Sudoku')
+plotFunctions.plotGreedy(iteration, ranksList, colorsList, 'sudoku')
 stop = timeit.default_timer()
 print('Time: ', stop - start)
